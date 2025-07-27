@@ -30,11 +30,16 @@ public class RobotTimelineWindow : EditorWindow
 
         float maxTime = 0f;
         foreach (var entry in _timeline.commands)
-            if (entry != null && entry.startTime > maxTime)
-                maxTime = entry.startTime;
+        {
+            if (entry == null || entry.command == null)
+                continue;
+            float end = entry.startTime + entry.command.GetDuration();
+            if (end > maxTime)
+                maxTime = end;
+        }
 
         Rect rect = GUILayoutUtility.GetRect(position.width - 20, 100);
-        float width = Mathf.Max(rect.width, maxTime * _pixelsPerSecond + 100);
+        float width = Mathf.Max(rect.width, (maxTime + 5f) * _pixelsPerSecond);
         Rect contentRect = new Rect(0, 0, width, rect.height);
         _scroll = GUI.BeginScrollView(rect, _scroll, contentRect);
 
@@ -86,8 +91,23 @@ public class RobotTimelineWindow : EditorWindow
             if (entry == null || entry.command == null)
                 continue;
             float x = entry.startTime * _pixelsPerSecond;
-            Rect r = new Rect(x + 50, 20 + i * 22, 120, 20);
+            float w = Mathf.Max(40, entry.command.GetDuration() * _pixelsPerSecond);
+            Rect r = new Rect(x + 50, 20 + i * 22, w, 20);
+
+            Color prev = GUI.color;
+            GUI.color = GetColorForCommand(entry.command);
             GUI.Box(r, entry.command.GetType().Name);
+            GUI.color = prev;
+        }
+    }
+
+    Color GetColorForCommand(RobotCommand command)
+    {
+        unchecked
+        {
+            int hash = command.GetType().Name.GetHashCode();
+            float hue = (hash & 0xFFFFFF) / (float)0xFFFFFF;
+            return Color.HSVToRGB(hue, 0.6f, 0.8f);
         }
     }
 
