@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using System.IO;
 
 [CustomEditor(typeof(RobotCommandSequence))]
 public class RobotCommandSequenceEditor : Editor
@@ -47,6 +48,25 @@ public class RobotCommandSequenceEditor : Editor
     {
         serializedObject.Update();
         _list.DoLayoutList();
+        EditorGUILayout.Space();
+        if (GUILayout.Button("Save Commands"))
+        {
+            string path = EditorUtility.SaveFilePanel("Save Robot Commands", "", "RobotCommands.json", "json");
+            if (!string.IsNullOrEmpty(path))
+            {
+                RobotCommandSequenceSerializer.Save((RobotCommandSequence)target, path);
+            }
+        }
+
+        if (GUILayout.Button("Load Commands"))
+        {
+            string path = EditorUtility.OpenFilePanel("Load Robot Commands", "", "json");
+            if (!string.IsNullOrEmpty(path))
+            {
+                RobotCommandSequenceSerializer.Load((RobotCommandSequence)target, path);
+                EditorUtility.SetDirty(target);
+            }
+        }
         serializedObject.ApplyModifiedProperties();
     }
 }
