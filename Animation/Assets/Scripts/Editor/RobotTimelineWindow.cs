@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class RobotTimelineWindow : EditorWindow
 {
+    const float LEFT_MARGIN = 50f;
     RobotCommandTimeline _timeline;
     Vector2 _scroll;
     float _pixelsPerSecond = 100f;
@@ -39,7 +40,7 @@ public class RobotTimelineWindow : EditorWindow
         }
 
         Rect rect = GUILayoutUtility.GetRect(position.width - 20, 100);
-        float width = Mathf.Max(rect.width, (maxTime + 5f) * _pixelsPerSecond);
+        float width = Mathf.Max(rect.width, (maxTime + 5f) * _pixelsPerSecond + LEFT_MARGIN);
         Rect contentRect = new Rect(0, 0, width, rect.height);
         _scroll = GUI.BeginScrollView(rect, _scroll, contentRect);
 
@@ -74,10 +75,10 @@ public class RobotTimelineWindow : EditorWindow
     void DrawTimeScale(Rect rect)
     {
         Handles.color = Color.gray;
-        int steps = Mathf.CeilToInt(rect.width / _pixelsPerSecond);
+        int steps = Mathf.CeilToInt((rect.width - LEFT_MARGIN) / _pixelsPerSecond);
         for (int i = 0; i <= steps; i++)
         {
-            float x = i * _pixelsPerSecond;
+            float x = i * _pixelsPerSecond + LEFT_MARGIN;
             Handles.DrawLine(new Vector2(x, 0), new Vector2(x, rect.height));
             GUI.Label(new Rect(x + 2, 0, 40, 20), i.ToString());
         }
@@ -90,9 +91,9 @@ public class RobotTimelineWindow : EditorWindow
             var entry = _timeline.commands[i];
             if (entry == null || entry.command == null)
                 continue;
-            float x = entry.startTime * _pixelsPerSecond;
+            float x = entry.startTime * _pixelsPerSecond + LEFT_MARGIN;
             float w = Mathf.Max(40, entry.command.GetDuration() * _pixelsPerSecond);
-            Rect r = new Rect(x + 50, 20 + i * 22, w, 20);
+            Rect r = new Rect(x, 20 + i * 22, w, 20);
 
             Color prev = GUI.color;
             GUI.color = GetColorForCommand(entry.command);
