@@ -47,6 +47,7 @@ public class RobotCommandSequenceEditor : Editor
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("loop"));
         _list.DoLayoutList();
         EditorGUILayout.Space();
         if (GUILayout.Button("Save Commands"))

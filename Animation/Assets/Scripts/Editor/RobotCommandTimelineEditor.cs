@@ -47,6 +47,7 @@ public class RobotCommandTimelineEditor : Editor
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("loop"));
         _list.DoLayoutList();
         if (GUILayout.Button("Open Timeline Window"))
         {
