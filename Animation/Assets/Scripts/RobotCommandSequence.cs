@@ -6,4 +6,5 @@ public class RobotCommandSequence : ScriptableObject
 {
     [SerializeReference]
     public List<RobotCommand> commands = new List<RobotCommand>();
+    public bool loop = false;
 }

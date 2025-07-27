@@ -5,4 +5,5 @@ using UnityEngine;
 public class RobotCommandTimeline : ScriptableObject
 {
     public List<RobotTimedCommand> commands = new List<RobotTimedCommand>();
+    public bool loop = false;
 }

@@ -38,33 +38,46 @@ public class RobotExecutor : MonoBehaviour
 
     IEnumerator RunSequence()
     {
-        foreach (var command in sequence.commands)
-        {
-            if (command != null)
-                yield return StartCoroutine(command.Execute(gameObject, _renderer));
-        }
-        _routine = null;
-    }
-
-    IEnumerator RunTimeline()
-    {
-        if (timeline.commands.Count == 0)
+        if (sequence == null)
         {
             _routine = null;
             yield break;
         }
 
-        // Start all timed commands as separate coroutines
-        var routines = new System.Collections.Generic.List<Coroutine>();
-        foreach (var entry in timeline.commands)
+        do
         {
-            if (entry.command == null)
-                continue;
-            routines.Add(StartCoroutine(RunTimed(entry)));
+            foreach (var command in sequence.commands)
+            {
+                if (command != null)
+                    yield return StartCoroutine(command.Execute(gameObject, _renderer));
+            }
+        } while (sequence.loop);
+
+        _routine = null;
+    }
+
+    IEnumerator RunTimeline()
+    {
+        if (timeline == null || timeline.commands.Count == 0)
+        {
+            _routine = null;
+            yield break;
         }
-        // Wait for all routines to finish
-        foreach (var r in routines)
-            yield return r;
+
+        do
+        {
+            var routines = new System.Collections.Generic.List<Coroutine>();
+            foreach (var entry in timeline.commands)
+            {
+                if (entry.command == null)
+                    continue;
+                routines.Add(StartCoroutine(RunTimed(entry)));
+            }
+
+            foreach (var r in routines)
+                yield return r;
+        } while (timeline.loop);
+
         _routine = null;
     }
 
