@@ -5,10 +5,14 @@ public class RobotTimelineWindow : EditorWindow
 {
     const float LEFT_MARGIN = 50f;
     RobotCommandTimeline _timeline;
+    GameObject _target;
     Vector2 _scroll;
     float _pixelsPerSecond = 100f;
     int _activeIndex = -1;
     bool _resizing = false;
+    bool _playing = false;
+    double _playStart;
+    float _previewTime = 0f;
 
     [MenuItem("Window/Robot Timeline Editor")]
     public static void OpenWindow()
@@ -23,9 +27,26 @@ public class RobotTimelineWindow : EditorWindow
         window.Repaint();
     }
 
+    void OnEnable()
+    {
+        EditorApplication.update += Update;
+    }
+
+    void OnDisable()
+    {
+        EditorApplication.update -= Update;
+    }
+
+    void Update()
+    {
+        if (_playing)
+            Repaint();
+    }
+
     void OnGUI()
     {
         _timeline = (RobotCommandTimeline)EditorGUILayout.ObjectField("Timeline", _timeline, typeof(RobotCommandTimeline), false);
+        _target = (GameObject)EditorGUILayout.ObjectField("Target", _target, typeof(GameObject), true);
         if (_timeline == null)
             return;
         _timeline.loop = EditorGUILayout.Toggle("Loop", _timeline.loop);
@@ -33,6 +54,7 @@ public class RobotTimelineWindow : EditorWindow
         _pixelsPerSecond = EditorGUILayout.Slider("Pixels Per Second", _pixelsPerSecond, 10f, 500f);
 
         float maxTime = 0f;
+        float currentTime = _playing ? (float)(EditorApplication.timeSinceStartup - _playStart) : _previewTime;
         foreach (var entry in _timeline.commands)
         {
             if (entry == null || entry.command == null)
@@ -48,14 +70,31 @@ public class RobotTimelineWindow : EditorWindow
         _scroll = GUI.BeginScrollView(rect, _scroll, contentRect);
 
         DrawTimeScale(contentRect);
-        DrawCommands();
+        DrawCommands(currentTime);
+
+        if (_playing)
+        {
+            Handles.color = Color.red;
+            float x = currentTime * _pixelsPerSecond + LEFT_MARGIN;
+            Handles.DrawLine(new Vector2(x, 0), new Vector2(x, contentRect.height));
+        }
 
         GUI.EndScrollView();
 
         GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Play"))
+        if (!_playing)
         {
-            PlayTimeline();
+            if (GUILayout.Button("Play"))
+            {
+                PlayTimeline();
+            }
+        }
+        else
+        {
+            if (GUILayout.Button("Stop"))
+            {
+                StopTimeline();
+            }
         }
         if (GUILayout.Button("Save"))
         {
@@ -73,6 +112,13 @@ public class RobotTimelineWindow : EditorWindow
             }
         }
         GUILayout.EndHorizontal();
+
+        _previewTime = EditorGUILayout.FloatField("Preview Time", _previewTime);
+        if (GUILayout.Button("Preview"))
+        {
+            PreviewTimeline(_previewTime);
+        }
+        GUILayout.Label($"Time: {currentTime:F2}s");
     }
 
     void DrawTimeScale(Rect rect)
@@ -87,7 +133,7 @@ public class RobotTimelineWindow : EditorWindow
         }
     }
 
-    void DrawCommands()
+    void DrawCommands(float currentTime)
     {
         Event e = Event.current;
         for (int i = 0; i < _timeline.commands.Count; i++)
@@ -149,7 +195,10 @@ public class RobotTimelineWindow : EditorWindow
             }
 
             Color prev = GUI.color;
-            GUI.color = GetColorForCommand(entry.command);
+            if (_playing && currentTime >= entry.startTime && currentTime <= entry.startTime + entry.command.GetDuration())
+                GUI.color = Color.yellow;
+            else
+                GUI.color = GetColorForCommand(entry.command);
             GUI.Box(r, entry.command.GetType().Name);
             GUI.color = prev;
         }
@@ -179,14 +228,41 @@ public class RobotTimelineWindow : EditorWindow
 
     void PlayTimeline()
     {
-        var go = Selection.activeGameObject;
-        if (go == null)
+        if (_target == null)
+            _target = Selection.activeGameObject;
+        if (_target == null)
             return;
-        var executor = go.GetComponent<RobotExecutor>();
+        var executor = _target.GetComponent<RobotExecutor>();
         if (executor == null)
-            return;
+            executor = _target.AddComponent<RobotExecutor>();
         executor.timeline = _timeline;
         executor.Stop();
         executor.Play();
+        _playing = true;
+        _playStart = EditorApplication.timeSinceStartup;
+    }
+
+    void StopTimeline()
+    {
+        _playing = false;
+        if (_target == null)
+            return;
+        var executor = _target.GetComponent<RobotExecutor>();
+        if (executor != null)
+            executor.Stop();
+    }
+
+    void PreviewTimeline(float time)
+    {
+        if (_target == null)
+            _target = Selection.activeGameObject;
+        if (_target == null)
+            return;
+        var executor = _target.GetComponent<RobotExecutor>();
+        if (executor == null)
+            executor = _target.AddComponent<RobotExecutor>();
+        executor.timeline = _timeline;
+        executor.Stop();
+        executor.Preview(time);
     }
 }
