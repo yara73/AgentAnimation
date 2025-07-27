@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 
 [System.Serializable]
-public abstract class RobotCommand
+public abstract class RobotCommand : IRobotCommand
 {
     public abstract IEnumerator Execute(GameObject robot, Renderer renderer);
 
@@ -11,10 +11,9 @@ public abstract class RobotCommand
     /// command length. Commands that don't have a notion of duration should
     /// return 0.
     /// </summary>
-    public virtual float GetDuration()
-    {
-        return 0f;
-    }
+    public virtual float GetDuration() => 0f;
+
+    public abstract void ApplyState(ref RobotState state, float time);
 }
 
 [System.Serializable]
@@ -39,6 +38,12 @@ public class MoveCommand : RobotCommand
         }
         robot.transform.position = target;
     }
+
+    public override void ApplyState(ref RobotState state, float time)
+    {
+        float t = duration > 0f ? Mathf.Clamp01(time / duration) : 1f;
+        state.Position = Vector3.Lerp(state.Position, position, t);
+    }
 }
 
 [System.Serializable]
@@ -62,6 +67,12 @@ public class RotateCommand : RobotCommand
             yield return null;
         }
         robot.transform.eulerAngles = target;
+    }
+
+    public override void ApplyState(ref RobotState state, float time)
+    {
+        float t = duration > 0f ? Mathf.Clamp01(time / duration) : 1f;
+        state.Rotation = Vector3.Lerp(state.Rotation, rotation, t);
     }
 }
 
@@ -90,6 +101,12 @@ public class ColorCommand : RobotCommand
         }
         renderer.material.color = target;
     }
+
+    public override void ApplyState(ref RobotState state, float time)
+    {
+        float t = duration > 0f ? Mathf.Clamp01(time / duration) : 1f;
+        state.Color = Color.Lerp(state.Color, color, t);
+    }
 }
 
 [System.Serializable]
@@ -102,5 +119,10 @@ public class WaitCommand : RobotCommand
     public override IEnumerator Execute(GameObject robot, Renderer renderer)
     {
         yield return new WaitForSeconds(time);
+    }
+
+    public override void ApplyState(ref RobotState state, float time)
+    {
+        // Wait command does not alter the robot state.
     }
 }
