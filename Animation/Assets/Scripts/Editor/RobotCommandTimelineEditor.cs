@@ -48,6 +48,10 @@ public class RobotCommandTimelineEditor : Editor
     {
         serializedObject.Update();
         _list.DoLayoutList();
+        if (GUILayout.Button("Open Timeline Window"))
+        {
+            RobotTimelineWindow.Open((RobotCommandTimeline)target);
+        }
         serializedObject.ApplyModifiedProperties();
     }
 }
