@@ -138,7 +138,7 @@ public class RobotExecutor : MonoBehaviour
         transform.position = state.Position;
         transform.eulerAngles = state.Rotation;
         if (_renderer)
-            _renderer.sharedMaterial.color = state.Color;
+            _renderer.material.color = state.Color;
     }
 
     private void CacheInitialState()
@@ -147,7 +147,7 @@ public class RobotExecutor : MonoBehaviour
         {
             Position = transform.position,
             Rotation = transform.eulerAngles,
-            Color = _renderer ? _renderer.sharedMaterial.color : Color.white
+            Color = _renderer ? _renderer.material.color : Color.white
         };
         _cachedState = true;
     }

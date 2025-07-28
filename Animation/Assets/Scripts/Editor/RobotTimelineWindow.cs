@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 using System;
+using System.Linq;
 
 public class RobotTimelineWindow : EditorWindow
 {
@@ -44,7 +45,25 @@ public class RobotTimelineWindow : EditorWindow
         if (_playing)
         {
             if (!EditorApplication.isPlaying)
-                PreviewTimeline((float)(EditorApplication.timeSinceStartup - _playStart));
+            {
+                float elapsed = (float)(EditorApplication.timeSinceStartup - _playStart);
+                float duration = GetTimelineDuration();
+                if (elapsed >= duration)
+                {
+                    if (_timeline.loop)
+                    {
+                        elapsed %= Mathf.Max(duration, 0.0001f);
+                        _playStart = EditorApplication.timeSinceStartup - elapsed;
+                    }
+                    else
+                    {
+                        StopTimeline();
+                        PreviewTimeline(duration);
+                        return;
+                    }
+                }
+                PreviewTimeline(elapsed);
+            }
             Repaint();
         }
     }
@@ -229,6 +248,20 @@ public class RobotTimelineWindow : EditorWindow
             float hue = (hash & 0xFFFFFF) / (float)0xFFFFFF;
             return Color.HSVToRGB(hue, 0.6f, 0.8f);
         }
+    }
+
+    float GetTimelineDuration()
+    {
+        if (_timeline == null)
+            return 0f;
+        float maxTime = 0f;
+        foreach (var entry in _timeline.commands.Where(c => c != null && c.command != null))
+        {
+            float end = entry.startTime + c.command.GetDuration();
+            if (end > maxTime)
+                maxTime = end;
+        }
+        return maxTime;
     }
 
     void ShowAddMenu()
