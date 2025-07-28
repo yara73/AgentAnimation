@@ -15,17 +15,17 @@ public class ColorCommand : RobotCommand
         if (renderer == null)
             yield break;
 
-        Color start = renderer.material.color;
+        Color start = renderer.sharedMaterial.color;
         Color target = color;
         float time = 0f;
         while (time < duration)
         {
             time += Time.deltaTime;
             float t = duration > 0f ? time / duration : 1f;
-            renderer.material.color = Color.Lerp(start, target, t);
+            renderer.sharedMaterial.color = Color.Lerp(start, target, t);
             yield return null;
         }
-        renderer.material.color = target;
+        renderer.sharedMaterial.color = target;
     }
 
     public override void ApplyState(ref RobotState state, float time)
