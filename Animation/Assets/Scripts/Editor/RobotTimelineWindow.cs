@@ -214,6 +214,17 @@ public class RobotTimelineWindow : EditorWindow
                 case EventType.MouseUp:
                     if (_activeIndex == i)
                     {
+                        const float snap = 0.1f;
+                        if (_resizing)
+                        {
+                            var d = entry.command.GetDuration();
+                            d = Mathf.Round(d / snap) * snap;
+                            SetCommandDuration(entry.command, d);
+                        }
+                        else
+                        {
+                            entry.startTime = Mathf.Round(entry.startTime / snap) * snap;
+                        }
                         _activeIndex = -1;
                         _resizing = false;
                         e.Use();
