@@ -151,6 +151,7 @@ public class RobotExecutor : MonoBehaviour
         transform.localScale = state.Scale;
         if (_renderer)
             _renderer.sharedMaterial.color = state.Color;
+        gameObject.SetActive(state.Active);
     }
 
     public void RefreshInitialState()
@@ -167,7 +168,8 @@ public class RobotExecutor : MonoBehaviour
             Position = transform.position,
             Rotation = transform.eulerAngles,
             Scale = transform.localScale,
-            Color = _renderer ? _renderer.sharedMaterial.color : Color.white
+            Color = _renderer ? _renderer.sharedMaterial.color : Color.white,
+            Active = gameObject.activeSelf
         };
         _cachedState = true;
     }

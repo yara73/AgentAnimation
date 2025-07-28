@@ -198,11 +198,14 @@ public class RobotTimelineWindow : EditorWindow
                         if (_resizing)
                         {
                             var newDur = Mathf.Max(0, entry.command.GetDuration() + delta);
+                            newDur = Mathf.Round(newDur * 10f) / 10f;
                             SetCommandDuration(entry.command, newDur);
                         }
                         else
                         {
-                            entry.startTime = Mathf.Max(0, entry.startTime + delta);
+                            var newStart = Mathf.Max(0, entry.startTime + delta);
+                            newStart = Mathf.Round(newStart * 10f) / 10f;
+                            entry.startTime = newStart;
                         }
                         e.Use();
                         EditorUtility.SetDirty(_timeline);
@@ -244,9 +247,11 @@ public class RobotTimelineWindow : EditorWindow
     {
         return !_timeline ? 
             0f : 
-            _timeline.commands.
-                Where(c => c is { command: not null }).
-                    Select(entry => entry.startTime + entry.command.GetDuration()).Prepend(0f).Max();
+            _timeline.commands
+                .Where(c => c != null && c.command != null)
+                .Select(entry => entry.startTime + entry.command.GetDuration())
+                .Prepend(0f)
+                .Max();
     }
 
     private void ShowAddMenu()
