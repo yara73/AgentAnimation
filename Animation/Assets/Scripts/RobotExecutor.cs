@@ -15,21 +15,23 @@ public class RobotExecutor : MonoBehaviour
     private RobotState _initialState;
     private bool _cachedState = false;
 
+    private void EnsureInitialized()
+    {
+        if (_renderer == null)
+            _renderer = GetComponent<Renderer>();
+        if (!_cachedState)
+            CacheInitialState();
+    }
+
     private void Start()
     {
-        _renderer = GetComponent<Renderer>();
-        CacheInitialState();
+        EnsureInitialized();
         StartExecution();
     }
 
     public void Play()
     {
-        if (_renderer == null)
-            _renderer = GetComponent<Renderer>();
-
-        if (!_cachedState)
-            CacheInitialState();
-
+        EnsureInitialized();
         StartExecution();
     }
 
@@ -58,7 +60,7 @@ public class RobotExecutor : MonoBehaviour
     {
         if (!timeline)
             return;
-        _renderer = GetComponent<Renderer>();
+        EnsureInitialized();
 
         var sorted = new List<RobotTimedCommand>(timeline.commands);
         sorted.Sort((a, b) => a.startTime.CompareTo(b.startTime));

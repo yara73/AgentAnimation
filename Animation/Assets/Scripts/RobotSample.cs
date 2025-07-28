@@ -6,9 +6,7 @@ public class RobotSample : MonoBehaviour
 
     private void Start()
     {
-        var executor = GetComponent<RobotExecutor>();
-        if (!executor)
-            executor = gameObject.AddComponent<RobotExecutor>();
+        var executor = gameObject.GetOrAddComponent<RobotExecutor>();
         executor.sequence = sequence;
         executor.Play();
     }

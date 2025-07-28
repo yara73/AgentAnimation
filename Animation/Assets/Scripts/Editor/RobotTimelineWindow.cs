@@ -78,8 +78,8 @@ public class RobotTimelineWindow : EditorWindow
         _pixelsPerSecond = EditorGUILayout.Slider("Pixels Per Second", _pixelsPerSecond, 10f, 500f);
         _timeScale = EditorGUILayout.FloatField("Time Scale", _timeScale);
 
-        var currentTime = _playing ? (float)(EditorApplication.timeSinceStartup - _playStart) * _timeScale : _previewTime;
-        var maxTime = (from entry in _timeline.commands where entry?.command != null select entry.startTime + entry.command.GetDuration()).Prepend(0f).Max();
+        var currentTime = GetCurrentTime();
+        var maxTime = GetTimelineDuration();
 
         var timelineHeight = Mathf.Max(120f, _timeline.commands.Count * 22f + 40f);
         var rect = GUILayoutUtility.GetRect(position.width - 20, timelineHeight);
@@ -99,44 +99,8 @@ public class RobotTimelineWindow : EditorWindow
 
         GUI.EndScrollView();
 
-        GUILayout.BeginHorizontal();
-        if (!_playing)
-        {
-            if (GUILayout.Button("Play"))
-            {
-                PlayTimeline();
-            }
-        }
-        else
-        {
-            if (GUILayout.Button("Stop"))
-            {
-                StopTimeline();
-            }
-        }
-        if (GUILayout.Button("Save"))
-        {
-            var path = EditorUtility.SaveFilePanel("Save Robot Timeline", "", "RobotTimeline.json", "json");
-            if (!string.IsNullOrEmpty(path))
-                RobotCommandTimelineSerializer.Save(_timeline, path);
-        }
-        if (GUILayout.Button("Load"))
-        {
-            var path = EditorUtility.OpenFilePanel("Load Robot Timeline", "", "json");
-            if (!string.IsNullOrEmpty(path))
-            {
-                RobotCommandTimelineSerializer.Load(_timeline, path);
-                EditorUtility.SetDirty(_timeline);
-            }
-        }
-        GUILayout.EndHorizontal();
-
-        _previewTime = EditorGUILayout.FloatField("Preview Time", _previewTime);
-        if (GUILayout.Button("Preview"))
-        {
-            PreviewTimeline(_previewTime);
-        }
-        GUILayout.Label($"Time: {currentTime:F2}s");
+        DrawPlaybackControls();
+        DrawPreviewControls(currentTime);
 
         GUILayout.Space(5);
         if (GUILayout.Button("Add State"))
@@ -242,13 +206,20 @@ public class RobotTimelineWindow : EditorWindow
 
     private float GetTimelineDuration()
     {
-        return !_timeline ? 
-            0f : 
+        return !_timeline ?
+            0f :
             _timeline.commands
                 .Where(c => c != null && c.command != null)
                 .Select(entry => entry.startTime + entry.command.GetDuration())
                 .Prepend(0f)
                 .Max();
+    }
+
+    private float GetCurrentTime()
+    {
+        return _playing
+            ? (float)(EditorApplication.timeSinceStartup - _playStart) * _timeScale
+            : _previewTime;
     }
 
     private void ShowAddMenu()
@@ -272,19 +243,35 @@ public class RobotTimelineWindow : EditorWindow
         EditorUtility.SetDirty(_timeline);
     }
 
-    private void PlayTimeline()
+    private RobotExecutor GetExecutor(bool create = true)
     {
         if (!_target)
             _target = Selection.activeGameObject;
         if (!_target)
-            return;
-        var executor = _target.GetComponent<RobotExecutor>();
+            return null;
+        var executor = create
+            ? _target.GetOrAddComponent<RobotExecutor>()
+            : _target.GetComponent<RobotExecutor>();
+        return executor;
+    }
+
+    private RobotExecutor PrepareExecutor()
+    {
+        var executor = GetExecutor();
         if (!executor)
-            executor = _target.AddComponent<RobotExecutor>();
+            return null;
         executor.timeline = _timeline;
         executor.timeScale = _timeScale;
         executor.RefreshInitialState();
         executor.Stop();
+        return executor;
+    }
+
+    private void PlayTimeline()
+    {
+        var executor = PrepareExecutor();
+        if (!executor)
+            return;
         if (EditorApplication.isPlaying)
             executor.Play();
         else
@@ -296,9 +283,7 @@ public class RobotTimelineWindow : EditorWindow
     private void StopTimeline()
     {
         _playing = false;
-        if (!_target)
-            return;
-        var executor = _target.GetComponent<RobotExecutor>();
+        var executor = GetExecutor(false);
         if (!executor) return;
         if (EditorApplication.isPlaying)
             executor.Stop();
@@ -308,16 +293,54 @@ public class RobotTimelineWindow : EditorWindow
 
     private void PreviewTimeline(float time)
     {
-        if (!_target)
-            _target = Selection.activeGameObject;
-        if (!_target)
-            return;
-        var executor = _target.GetComponent<RobotExecutor>();
+        var executor = PrepareExecutor();
         if (!executor)
-            executor = _target.AddComponent<RobotExecutor>();
-        executor.timeline = _timeline;
-        executor.RefreshInitialState();
-        executor.Stop();
+            return;
         executor.Preview(time);
+    }
+
+    private void DrawPlaybackControls()
+    {
+        GUILayout.BeginHorizontal();
+        if (!_playing)
+        {
+            if (GUILayout.Button("Play"))
+                PlayTimeline();
+        }
+        else
+        {
+            if (GUILayout.Button("Stop"))
+                StopTimeline();
+        }
+        if (GUILayout.Button("Save"))
+            ShowSaveDialog();
+        if (GUILayout.Button("Load"))
+            ShowLoadDialog();
+        GUILayout.EndHorizontal();
+    }
+
+    private void DrawPreviewControls(float currentTime)
+    {
+        _previewTime = EditorGUILayout.FloatField("Preview Time", _previewTime);
+        if (GUILayout.Button("Preview"))
+            PreviewTimeline(_previewTime);
+        GUILayout.Label($"Time: {currentTime:F2}s");
+    }
+
+    private void ShowSaveDialog()
+    {
+        var path = EditorUtility.SaveFilePanel("Save Robot Timeline", "", "RobotTimeline.json", "json");
+        if (!string.IsNullOrEmpty(path))
+            RobotCommandTimelineSerializer.Save(_timeline, path);
+    }
+
+    private void ShowLoadDialog()
+    {
+        var path = EditorUtility.OpenFilePanel("Load Robot Timeline", "", "json");
+        if (!string.IsNullOrEmpty(path))
+        {
+            RobotCommandTimelineSerializer.Load(_timeline, path);
+            EditorUtility.SetDirty(_timeline);
+        }
     }
 }
