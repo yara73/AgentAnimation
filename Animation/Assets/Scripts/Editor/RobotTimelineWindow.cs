@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using System;
 
 public class RobotTimelineWindow : EditorWindow
 {
@@ -217,14 +218,7 @@ public class RobotTimelineWindow : EditorWindow
 
     void SetCommandDuration(RobotCommand command, float value)
     {
-        if (command is MoveCommand m)
-            m.duration = value;
-        else if (command is RotateCommand r)
-            r.duration = value;
-        else if (command is ColorCommand c)
-            c.duration = value;
-        else if (command is WaitCommand w)
-            w.time = value;
+        RobotCommandRegistry.SetDuration(command, value);
     }
 
     Color GetColorForCommand(RobotCommand command)
@@ -240,14 +234,11 @@ public class RobotTimelineWindow : EditorWindow
     void ShowAddMenu()
     {
         var menu = new GenericMenu();
-        menu.AddItem(new GUIContent("Move"), false, () => AddCommand<MoveCommand>());
-        menu.AddItem(new GUIContent("Rotate"), false, () => AddCommand<RotateCommand>());
-        menu.AddItem(new GUIContent("Change Color"), false, () => AddCommand<ColorCommand>());
-        menu.AddItem(new GUIContent("Wait"), false, () => AddCommand<WaitCommand>());
+        RobotCommandRegistry.PopulateMenu(menu, type => AddCommand(type));
         menu.ShowAsContext();
     }
 
-    void AddCommand<T>() where T : RobotCommand, new()
+    void AddCommand(Type type)
     {
         if (_timeline == null)
             return;
@@ -255,7 +246,7 @@ public class RobotTimelineWindow : EditorWindow
         var entry = new RobotTimedCommand
         {
             startTime = 0f,
-            command = new T()
+            command = (RobotCommand)Activator.CreateInstance(type)
         };
         _timeline.commands.Add(entry);
         EditorUtility.SetDirty(_timeline);

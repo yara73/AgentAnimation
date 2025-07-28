@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using System;
 using System.IO;
 
 [CustomEditor(typeof(RobotCommandSequence))]
@@ -25,22 +26,19 @@ public class RobotCommandSequenceEditor : Editor
         _list.onAddDropdownCallback = (rect, list) =>
         {
             var menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Move"), false, () => AddCommand<MoveCommand>());
-            menu.AddItem(new GUIContent("Rotate"), false, () => AddCommand<RotateCommand>());
-            menu.AddItem(new GUIContent("Change Color"), false, () => AddCommand<ColorCommand>());
-            menu.AddItem(new GUIContent("Wait"), false, () => AddCommand<WaitCommand>());
+            RobotCommandRegistry.PopulateMenu(menu, type => AddCommand(type));
             menu.ShowAsContext();
         };
     }
 
-    void AddCommand<T>() where T : RobotCommand, new()
+    void AddCommand(Type type)
     {
         serializedObject.Update();
         var prop = serializedObject.FindProperty("commands");
         int index = prop.arraySize;
         prop.InsertArrayElementAtIndex(index);
         var element = prop.GetArrayElementAtIndex(index);
-        element.managedReferenceValue = new T();
+        element.managedReferenceValue = Activator.CreateInstance(type);
         serializedObject.ApplyModifiedProperties();
     }
 

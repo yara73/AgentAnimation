@@ -17,6 +17,7 @@ public abstract class RobotCommand : IRobotCommand
 }
 
 [System.Serializable]
+[RobotCommand("Move", "duration")]
 public class MoveCommand : RobotCommand
 {
     public Vector3 position;
@@ -47,6 +48,7 @@ public class MoveCommand : RobotCommand
 }
 
 [System.Serializable]
+[RobotCommand("Rotate", "duration")]
 public class RotateCommand : RobotCommand
 {
     public Vector3 rotation;
@@ -77,6 +79,7 @@ public class RotateCommand : RobotCommand
 }
 
 [System.Serializable]
+[RobotCommand("Change Color", "duration")]
 public class ColorCommand : RobotCommand
 {
     public Color color = Color.white;
@@ -110,6 +113,7 @@ public class ColorCommand : RobotCommand
 }
 
 [System.Serializable]
+[RobotCommand("Wait", "time")]
 public class WaitCommand : RobotCommand
 {
     public float time = 1f;
