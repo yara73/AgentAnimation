@@ -8,10 +8,13 @@ public class RobotExecutor : MonoBehaviour
 
     private Renderer _renderer;
     private Coroutine _routine;
+    private RobotState _initialState;
+    private bool _cachedState = false;
 
     void Start()
     {
         _renderer = GetComponent<Renderer>();
+        CacheInitialState();
         if (timeline != null)
             _routine = StartCoroutine(RunTimeline());
         else if (sequence != null)
@@ -22,6 +25,8 @@ public class RobotExecutor : MonoBehaviour
     {
         if (_routine == null)
         {
+            if (!_cachedState)
+                CacheInitialState();
             if (timeline != null)
                 _routine = StartCoroutine(RunTimeline());
             else if (sequence != null)
@@ -34,6 +39,8 @@ public class RobotExecutor : MonoBehaviour
         if (_routine != null)
             StopCoroutine(_routine);
         _routine = null;
+        if (_cachedState)
+            ApplyState(_initialState);
     }
 
     public void Preview(float time)
@@ -45,12 +52,10 @@ public class RobotExecutor : MonoBehaviour
         var sorted = new System.Collections.Generic.List<RobotTimedCommand>(timeline.commands);
         sorted.Sort((a, b) => a.startTime.CompareTo(b.startTime));
 
-        RobotState state = new RobotState
-        {
-            Position = transform.position,
-            Rotation = transform.eulerAngles,
-            Color = _renderer ? _renderer.sharedMaterial.color : Color.white
-        };
+        if (!_cachedState)
+            CacheInitialState();
+
+        RobotState state = _initialState;
 
         foreach (var entry in sorted)
         {
@@ -130,5 +135,16 @@ public class RobotExecutor : MonoBehaviour
         transform.eulerAngles = state.Rotation;
         if (_renderer != null)
             _renderer.sharedMaterial.color = state.Color;
+    }
+
+    void CacheInitialState()
+    {
+        _initialState = new RobotState
+        {
+            Position = transform.position,
+            Rotation = transform.eulerAngles,
+            Color = _renderer ? _renderer.sharedMaterial.color : Color.white
+        };
+        _cachedState = true;
     }
 }
