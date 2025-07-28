@@ -89,6 +89,8 @@ public class RobotExecutor : MonoBehaviour
 
         do
         {
+            if (_cachedState)
+                ApplyState(_initialState);
             foreach (var command in sequence.commands.Where(command => command != null))
             {
                 yield return StartCoroutine(command.Execute(gameObject, _renderer));
@@ -108,6 +110,8 @@ public class RobotExecutor : MonoBehaviour
 
         do
         {
+            if (_cachedState)
+                ApplyState(_initialState);
             var maxTime = 0f;
             foreach (var entry in timeline.commands.Where(entry => entry.command != null))
             {
