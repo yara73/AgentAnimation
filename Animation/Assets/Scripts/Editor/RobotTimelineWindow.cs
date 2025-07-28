@@ -40,7 +40,11 @@ public class RobotTimelineWindow : EditorWindow
     void Update()
     {
         if (_playing)
+        {
+            if (!EditorApplication.isPlaying)
+                PreviewTimeline((float)(EditorApplication.timeSinceStartup - _playStart));
             Repaint();
+        }
     }
 
     void OnGUI()
@@ -237,7 +241,10 @@ public class RobotTimelineWindow : EditorWindow
             executor = _target.AddComponent<RobotExecutor>();
         executor.timeline = _timeline;
         executor.Stop();
-        executor.Play();
+        if (EditorApplication.isPlaying)
+            executor.Play();
+        else
+            executor.Preview(0f);
         _playing = true;
         _playStart = EditorApplication.timeSinceStartup;
     }
@@ -249,7 +256,12 @@ public class RobotTimelineWindow : EditorWindow
             return;
         var executor = _target.GetComponent<RobotExecutor>();
         if (executor != null)
-            executor.Stop();
+        {
+            if (EditorApplication.isPlaying)
+                executor.Stop();
+            else
+                executor.Preview(0f);
+        }
     }
 
     void PreviewTimeline(float time)
