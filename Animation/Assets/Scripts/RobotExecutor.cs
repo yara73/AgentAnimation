@@ -137,6 +137,7 @@ public class RobotExecutor : MonoBehaviour
     {
         transform.position = state.Position;
         transform.eulerAngles = state.Rotation;
+        transform.localScale = state.Scale;
         if (_renderer)
             _renderer.material.color = state.Color;
     }
@@ -147,6 +148,7 @@ public class RobotExecutor : MonoBehaviour
         {
             Position = transform.position,
             Rotation = transform.eulerAngles,
+            Scale = transform.localScale,
             Color = _renderer ? _renderer.material.color : Color.white
         };
         _cachedState = true;
