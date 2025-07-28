@@ -19,6 +19,8 @@ public class RobotExecutor : MonoBehaviour
         _renderer = GetComponent<Renderer>();
         CacheInitialState();
         RobotTime.TimeScale = timeScale;
+        if (_routine != null) return;
+
         if (timeline)
             _routine = StartCoroutine(RunTimeline());
         else if (sequence)
@@ -28,6 +30,9 @@ public class RobotExecutor : MonoBehaviour
     public void Play()
     {
         if (_routine != null) return;
+
+        if (_renderer == null)
+            _renderer = GetComponent<Renderer>();
 
         if (!_cachedState)
             CacheInitialState();
@@ -152,6 +157,8 @@ public class RobotExecutor : MonoBehaviour
 
     private void CacheInitialState()
     {
+        if (_renderer == null)
+            _renderer = GetComponent<Renderer>();
         _initialState = new RobotState
         {
             Position = transform.position,
