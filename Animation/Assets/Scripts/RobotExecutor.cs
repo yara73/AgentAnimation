@@ -11,6 +11,7 @@ public class RobotExecutor : MonoBehaviour
 
     private Renderer _renderer;
     private Coroutine _routine;
+    private readonly List<Coroutine> _coroutines = new List<Coroutine>();
     private RobotState _initialState;
     private bool _cachedState = false;
 
@@ -22,9 +23,9 @@ public class RobotExecutor : MonoBehaviour
         if (_routine != null) return;
 
         if (timeline)
-            _routine = StartCoroutine(RunTimeline());
+            _routine = StartTrackedCoroutine(RunTimeline());
         else if (sequence)
-            _routine = StartCoroutine(RunSequence());
+            _routine = StartTrackedCoroutine(RunSequence());
     }
 
     public void Play()
@@ -38,15 +39,14 @@ public class RobotExecutor : MonoBehaviour
             CacheInitialState();
         RobotTime.TimeScale = timeScale;
         if (timeline)
-            _routine = StartCoroutine(RunTimeline());
+            _routine = StartTrackedCoroutine(RunTimeline());
         else if (sequence)
-            _routine = StartCoroutine(RunSequence());
+            _routine = StartTrackedCoroutine(RunSequence());
     }
 
     public void Stop()
     {
-        if (_routine != null)
-            StopAllCoroutines();
+        StopTrackedCoroutines();
         _routine = null;
         RobotTime.TimeScale = 1f;
         if (_cachedState)
@@ -100,7 +100,7 @@ public class RobotExecutor : MonoBehaviour
                 ApplyState(_initialState);
             foreach (var command in sequence.commands.Where(command => command != null))
             {
-                yield return StartCoroutine(command.Execute(gameObject, _renderer));
+                yield return StartTrackedCoroutine(command.Execute(gameObject, _renderer));
             }
         } while (sequence.loop);
 
@@ -122,7 +122,7 @@ public class RobotExecutor : MonoBehaviour
             var maxTime = 0f;
             foreach (var entry in timeline.commands.Where(entry => entry.command != null))
             {
-                StartCoroutine(RunTimed(entry));
+                StartTrackedCoroutine(RunTimed(entry));
                 var end = entry.startTime + entry.command.GetDuration();
                 if (end > maxTime)
                     maxTime = end;
@@ -141,7 +141,7 @@ public class RobotExecutor : MonoBehaviour
     {
         if (entry.startTime > 0f)
             yield return new WaitForSeconds(entry.startTime / RobotTime.TimeScale);
-        yield return StartCoroutine(entry.command.Execute(gameObject, _renderer));
+        yield return StartTrackedCoroutine(entry.command.Execute(gameObject, _renderer));
     }
 
     private void ApplyState(RobotState state)
@@ -172,5 +172,25 @@ public class RobotExecutor : MonoBehaviour
             Active = gameObject.activeSelf
         };
         _cachedState = true;
+    }
+
+    private Coroutine StartTrackedCoroutine(IEnumerator routine)
+    {
+        Coroutine handle = null;
+        IEnumerator Wrap()
+        {
+            yield return routine;
+            _coroutines.Remove(handle);
+        }
+        handle = CoroutineRunner.Run(Wrap());
+        _coroutines.Add(handle);
+        return handle;
+    }
+
+    private void StopTrackedCoroutines()
+    {
+        foreach (var c in _coroutines)
+            CoroutineRunner.Stop(c);
+        _coroutines.Clear();
     }
 }
