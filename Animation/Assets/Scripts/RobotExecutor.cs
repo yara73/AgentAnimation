@@ -37,7 +37,7 @@ public class RobotExecutor : MonoBehaviour
     public void Stop()
     {
         if (_routine != null)
-            StopCoroutine(_routine);
+            StopAllCoroutines();
         _routine = null;
         if (_cachedState)
             ApplyState(_initialState);
@@ -107,16 +107,21 @@ public class RobotExecutor : MonoBehaviour
 
         do
         {
-            var routines = new System.Collections.Generic.List<Coroutine>();
+            float maxTime = 0f;
             foreach (var entry in timeline.commands)
             {
                 if (entry.command == null)
                     continue;
-                routines.Add(StartCoroutine(RunTimed(entry)));
+                StartCoroutine(RunTimed(entry));
+                float end = entry.startTime + entry.command.GetDuration();
+                if (end > maxTime)
+                    maxTime = end;
             }
 
-            foreach (var r in routines)
-                yield return r;
+            if (maxTime > 0f)
+                yield return new WaitForSeconds(maxTime);
+            else
+                yield return null;
         } while (timeline.loop);
 
         _routine = null;
