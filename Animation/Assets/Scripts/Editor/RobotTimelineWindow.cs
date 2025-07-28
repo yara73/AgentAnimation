@@ -281,6 +281,7 @@ public class RobotTimelineWindow : EditorWindow
             executor = _target.AddComponent<RobotExecutor>();
         executor.timeline = _timeline;
         executor.timeScale = _timeScale;
+        executor.RefreshInitialState();
         executor.Stop();
         if (EditorApplication.isPlaying)
             executor.Play();
@@ -313,6 +314,7 @@ public class RobotTimelineWindow : EditorWindow
         if (!executor)
             executor = _target.AddComponent<RobotExecutor>();
         executor.timeline = _timeline;
+        executor.RefreshInitialState();
         executor.Stop();
         executor.Preview(time);
     }
