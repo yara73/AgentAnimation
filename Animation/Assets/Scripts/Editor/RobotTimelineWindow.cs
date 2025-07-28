@@ -10,6 +10,7 @@ public class RobotTimelineWindow : EditorWindow
     private GameObject _target;
     private Vector2 _scroll;
     private float _pixelsPerSecond = 100f;
+    private float _timeScale = 1f;
     private int _activeIndex = -1;
     private bool _resizing = false;
     private bool _playing = false;
@@ -45,14 +46,14 @@ public class RobotTimelineWindow : EditorWindow
         if (!_playing) return;
         if (!EditorApplication.isPlaying)
         {
-            var elapsed = (float)(EditorApplication.timeSinceStartup - _playStart);
+            var elapsed = (float)(EditorApplication.timeSinceStartup - _playStart) * _timeScale;
             var duration = GetTimelineDuration();
             if (elapsed >= duration)
             {
                 if (_timeline.loop)
                 {
                     elapsed %= Mathf.Max(duration, 0.0001f);
-                    _playStart = EditorApplication.timeSinceStartup - elapsed;
+                    _playStart = EditorApplication.timeSinceStartup - elapsed / _timeScale;
                 }
                 else
                 {
@@ -75,13 +76,15 @@ public class RobotTimelineWindow : EditorWindow
         _timeline.loop = EditorGUILayout.Toggle("Loop", _timeline.loop);
 
         _pixelsPerSecond = EditorGUILayout.Slider("Pixels Per Second", _pixelsPerSecond, 10f, 500f);
+        _timeScale = EditorGUILayout.FloatField("Time Scale", _timeScale);
 
-        var currentTime = _playing ? (float)(EditorApplication.timeSinceStartup - _playStart) : _previewTime;
+        var currentTime = _playing ? (float)(EditorApplication.timeSinceStartup - _playStart) * _timeScale : _previewTime;
         var maxTime = (from entry in _timeline.commands where entry?.command != null select entry.startTime + entry.command.GetDuration()).Prepend(0f).Max();
 
-        var rect = GUILayoutUtility.GetRect(position.width - 20, 120);
+        var timelineHeight = Mathf.Max(120f, _timeline.commands.Count * 22f + 40f);
+        var rect = GUILayoutUtility.GetRect(position.width - 20, timelineHeight);
         var width = Mathf.Max(rect.width, (maxTime + 5f) * _pixelsPerSecond + LEFT_MARGIN);
-        var contentRect = new Rect(0, 0, width, rect.height);
+        var contentRect = new Rect(0, 0, width, timelineHeight);
         _scroll = GUI.BeginScrollView(rect, _scroll, contentRect);
 
         DrawTimeScale(contentRect);
@@ -277,6 +280,7 @@ public class RobotTimelineWindow : EditorWindow
         if (!executor)
             executor = _target.AddComponent<RobotExecutor>();
         executor.timeline = _timeline;
+        executor.timeScale = _timeScale;
         executor.Stop();
         if (EditorApplication.isPlaying)
             executor.Play();

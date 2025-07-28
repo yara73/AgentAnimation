@@ -20,7 +20,7 @@ public class ColorCommand : RobotCommand
         float time = 0f;
         while (time < duration)
         {
-            time += Time.deltaTime;
+            time += Time.deltaTime * RobotTime.TimeScale;
             float t = duration > 0f ? time / duration : 1f;
             renderer.sharedMaterial.color = Color.Lerp(start, target, t);
             yield return null;

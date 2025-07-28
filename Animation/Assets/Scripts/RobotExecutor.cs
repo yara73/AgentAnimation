@@ -7,6 +7,7 @@ public class RobotExecutor : MonoBehaviour
 {
     public RobotCommandSequence sequence;
     public RobotCommandTimeline timeline;
+    public float timeScale = 1f;
 
     private Renderer _renderer;
     private Coroutine _routine;
@@ -17,6 +18,7 @@ public class RobotExecutor : MonoBehaviour
     {
         _renderer = GetComponent<Renderer>();
         CacheInitialState();
+        RobotTime.TimeScale = timeScale;
         if (timeline)
             _routine = StartCoroutine(RunTimeline());
         else if (sequence)
@@ -26,9 +28,10 @@ public class RobotExecutor : MonoBehaviour
     public void Play()
     {
         if (_routine != null) return;
-        
+
         if (!_cachedState)
             CacheInitialState();
+        RobotTime.TimeScale = timeScale;
         if (timeline)
             _routine = StartCoroutine(RunTimeline());
         else if (sequence)
@@ -40,6 +43,7 @@ public class RobotExecutor : MonoBehaviour
         if (_routine != null)
             StopAllCoroutines();
         _routine = null;
+        RobotTime.TimeScale = 1f;
         if (_cachedState)
             ApplyState(_initialState);
     }
@@ -122,7 +126,7 @@ public class RobotExecutor : MonoBehaviour
             }
 
             if (maxTime > 0f)
-                yield return new WaitForSeconds(maxTime);
+                yield return new WaitForSeconds(maxTime / RobotTime.TimeScale);
             else
                 yield return null;
         } while (timeline.loop);
@@ -133,7 +137,7 @@ public class RobotExecutor : MonoBehaviour
     private IEnumerator RunTimed(RobotTimedCommand entry)
     {
         if (entry.startTime > 0f)
-            yield return new WaitForSeconds(entry.startTime);
+            yield return new WaitForSeconds(entry.startTime / RobotTime.TimeScale);
         yield return StartCoroutine(entry.command.Execute(gameObject, _renderer));
     }
 

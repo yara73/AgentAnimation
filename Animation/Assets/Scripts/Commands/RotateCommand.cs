@@ -17,7 +17,7 @@ public class RotateCommand : RobotCommand
         var time = 0f;
         while (time < duration)
         {
-            time += Time.deltaTime;
+            time += Time.deltaTime * RobotTime.TimeScale;
             var t = duration > 0f ? time / duration : 1f;
             robot.transform.eulerAngles = Vector3.Lerp(start, target, t);
             yield return null;
