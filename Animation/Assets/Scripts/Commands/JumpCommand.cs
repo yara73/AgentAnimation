@@ -16,7 +16,7 @@ public class JumpCommand : RobotCommand
         float time = 0f;
         while (time < duration)
         {
-            time += Time.deltaTime;
+            time += Time.deltaTime * RobotTime.TimeScale;
             float t = duration > 0f ? time / duration : 1f;
             float offset = Mathf.Sin(t * Mathf.PI) * height;
             robot.transform.position = start + Vector3.up * offset;

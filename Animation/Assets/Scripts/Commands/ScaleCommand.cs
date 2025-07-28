@@ -17,7 +17,7 @@ public class ScaleCommand : RobotCommand
         float time = 0f;
         while (time < duration)
         {
-            time += Time.deltaTime;
+            time += Time.deltaTime * RobotTime.TimeScale;
             float t = duration > 0f ? time / duration : 1f;
             robot.transform.localScale = Vector3.Lerp(start, target, t);
             yield return null;

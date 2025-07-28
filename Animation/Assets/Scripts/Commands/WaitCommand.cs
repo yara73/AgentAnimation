@@ -11,7 +11,7 @@ public class WaitCommand : RobotCommand
 
     public override IEnumerator Execute(GameObject robot, Renderer renderer)
     {
-        yield return new WaitForSeconds(time);
+        yield return new WaitForSeconds(time / RobotTime.TimeScale);
     }
 
     public override void ApplyState(ref RobotState state, float time)
