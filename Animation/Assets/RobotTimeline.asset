@@ -25,6 +25,18 @@ MonoBehaviour:
   - startTime: 5
     command:
       rid: 8839510083026026496
+  - startTime: 3
+    command:
+      rid: 8839510083026026497
+  - startTime: 0
+    command:
+      rid: 8839510083026026498
+  - startTime: 8
+    command:
+      rid: 8839510083026026499
+  - startTime: 2.0299988
+    command:
+      rid: 8839510083026026500
   loop: 1
   references:
     version: 2
@@ -49,3 +61,23 @@ MonoBehaviour:
       data:
         position: {x: -1, y: -1, z: -1}
         duration: 2
+    - rid: 8839510083026026497
+      type: {class: ScaleCommand, ns: , asm: Assembly-CSharp}
+      data:
+        scale: {x: 1, y: 1, z: 1}
+        duration: 1
+    - rid: 8839510083026026498
+      type: {class: ScaleCommand, ns: , asm: Assembly-CSharp}
+      data:
+        scale: {x: 0.5, y: 0.5, z: 0.5}
+        duration: 1
+    - rid: 8839510083026026499
+      type: {class: JumpCommand, ns: , asm: Assembly-CSharp}
+      data:
+        height: 1
+        duration: 2
+    - rid: 8839510083026026500
+      type: {class: JumpCommand, ns: , asm: Assembly-CSharp}
+      data:
+        height: 1
+        duration: 1
