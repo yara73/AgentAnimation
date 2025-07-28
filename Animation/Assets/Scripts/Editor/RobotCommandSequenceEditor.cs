@@ -9,20 +9,27 @@ public class RobotCommandSequenceEditor : Editor
 {
     ReorderableList _list;
 
-    void OnEnable()
+    private void OnEnable()
     {
-        _list = new ReorderableList(serializedObject, serializedObject.FindProperty("commands"), true, true, true, true);
-        _list.drawHeaderCallback = rect => GUI.Label(rect, "Commands");
+        _list = new ReorderableList(
+            serializedObject, 
+            serializedObject.FindProperty("commands"), true, true, true, true)
+            {
+                drawHeaderCallback = rect => GUI.Label(rect, "Commands")
+            };
+        
         _list.elementHeightCallback = index =>
         {
             var element = _list.serializedProperty.GetArrayElementAtIndex(index);
             return EditorGUI.GetPropertyHeight(element);
         };
+        
         _list.drawElementCallback = (rect, index, active, focused) =>
         {
             var element = _list.serializedProperty.GetArrayElementAtIndex(index);
             EditorGUI.PropertyField(rect, element, GUIContent.none, true);
         };
+        
         _list.onAddDropdownCallback = (rect, list) =>
         {
             var menu = new GenericMenu();
@@ -31,11 +38,11 @@ public class RobotCommandSequenceEditor : Editor
         };
     }
 
-    void AddCommand(Type type)
+    private void AddCommand(Type type)
     {
         serializedObject.Update();
         var prop = serializedObject.FindProperty("commands");
-        int index = prop.arraySize;
+        var index = prop.arraySize;
         prop.InsertArrayElementAtIndex(index);
         var element = prop.GetArrayElementAtIndex(index);
         element.managedReferenceValue = Activator.CreateInstance(type);
@@ -50,7 +57,7 @@ public class RobotCommandSequenceEditor : Editor
         EditorGUILayout.Space();
         if (GUILayout.Button("Save Commands"))
         {
-            string path = EditorUtility.SaveFilePanel("Save Robot Commands", "", "RobotCommands.json", "json");
+            var path = EditorUtility.SaveFilePanel("Save Robot Commands", "", "RobotCommands.json", "json");
             if (!string.IsNullOrEmpty(path))
             {
                 RobotCommandSequenceSerializer.Save((RobotCommandSequence)target, path);
@@ -59,7 +66,7 @@ public class RobotCommandSequenceEditor : Editor
 
         if (GUILayout.Button("Load Commands"))
         {
-            string path = EditorUtility.OpenFilePanel("Load Robot Commands", "", "json");
+            var path = EditorUtility.OpenFilePanel("Load Robot Commands", "", "json");
             if (!string.IsNullOrEmpty(path))
             {
                 RobotCommandSequenceSerializer.Load((RobotCommandSequence)target, path);

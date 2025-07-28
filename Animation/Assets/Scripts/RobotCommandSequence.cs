@@ -5,6 +5,6 @@ using UnityEngine;
 public class RobotCommandSequence : ScriptableObject
 {
     [SerializeReference]
-    public List<RobotCommand> commands = new List<RobotCommand>();
+    public List<IRobotCommand> commands = new List<IRobotCommand>();
     public bool loop = false;
 }

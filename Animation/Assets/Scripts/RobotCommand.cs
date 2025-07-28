@@ -5,12 +5,7 @@ using System.Collections;
 public abstract class RobotCommand : IRobotCommand
 {
     public abstract IEnumerator Execute(GameObject robot, Renderer renderer);
-
-    /// <summary>
-    /// Optional duration of the command. Used by the timeline editor to draw the
-    /// command length. Commands that don't have a notion of duration should
-    /// return 0.
-    /// </summary>
+    
     public virtual float GetDuration() => 0f;
 
     public abstract void ApplyState(ref RobotState state, float time);
@@ -27,9 +22,9 @@ public class MoveCommand : RobotCommand
 
     public override IEnumerator Execute(GameObject robot, Renderer renderer)
     {
-        Vector3 start = robot.transform.position;
-        Vector3 target = position;
-        float time = 0f;
+        var start = robot.transform.position;
+        var target = position;
+        var time = 0f;
         while (time < duration)
         {
             time += Time.deltaTime;
@@ -42,7 +37,7 @@ public class MoveCommand : RobotCommand
 
     public override void ApplyState(ref RobotState state, float time)
     {
-        float t = duration > 0f ? Mathf.Clamp01(time / duration) : 1f;
+        var t = duration > 0f ? Mathf.Clamp01(time / duration) : 1f;
         state.Position = Vector3.Lerp(state.Position, position, t);
     }
 }
@@ -58,13 +53,13 @@ public class RotateCommand : RobotCommand
 
     public override IEnumerator Execute(GameObject robot, Renderer renderer)
     {
-        Vector3 start = robot.transform.eulerAngles;
-        Vector3 target = rotation;
-        float time = 0f;
+        var start = robot.transform.eulerAngles;
+        var target = rotation;
+        var time = 0f;
         while (time < duration)
         {
             time += Time.deltaTime;
-            float t = duration > 0f ? time / duration : 1f;
+            var t = duration > 0f ? time / duration : 1f;
             robot.transform.eulerAngles = Vector3.Lerp(start, target, t);
             yield return null;
         }
@@ -73,7 +68,7 @@ public class RotateCommand : RobotCommand
 
     public override void ApplyState(ref RobotState state, float time)
     {
-        float t = duration > 0f ? Mathf.Clamp01(time / duration) : 1f;
+        var t = duration > 0f ? Mathf.Clamp01(time / duration) : 1f;
         state.Rotation = Vector3.Lerp(state.Rotation, rotation, t);
     }
 }
@@ -127,6 +122,6 @@ public class WaitCommand : RobotCommand
 
     public override void ApplyState(ref RobotState state, float time)
     {
-        // Wait command does not alter the robot state.
+        
     }
 }

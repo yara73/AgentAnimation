@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 public class RobotExecutor : MonoBehaviour
 {
@@ -11,27 +13,26 @@ public class RobotExecutor : MonoBehaviour
     private RobotState _initialState;
     private bool _cachedState = false;
 
-    void Start()
+    private void Start()
     {
         _renderer = GetComponent<Renderer>();
         CacheInitialState();
-        if (timeline != null)
+        if (timeline)
             _routine = StartCoroutine(RunTimeline());
-        else if (sequence != null)
+        else if (sequence)
             _routine = StartCoroutine(RunSequence());
     }
 
     public void Play()
     {
-        if (_routine == null)
-        {
-            if (!_cachedState)
-                CacheInitialState();
-            if (timeline != null)
-                _routine = StartCoroutine(RunTimeline());
-            else if (sequence != null)
-                _routine = StartCoroutine(RunSequence());
-        }
+        if (_routine != null) return;
+        
+        if (!_cachedState)
+            CacheInitialState();
+        if (timeline)
+            _routine = StartCoroutine(RunTimeline());
+        else if (sequence)
+            _routine = StartCoroutine(RunSequence());
     }
 
     public void Stop()
@@ -45,24 +46,25 @@ public class RobotExecutor : MonoBehaviour
 
     public void Preview(float time)
     {
-        if (timeline == null)
+        if (!timeline)
             return;
         _renderer = GetComponent<Renderer>();
 
-        var sorted = new System.Collections.Generic.List<RobotTimedCommand>(timeline.commands);
+        var sorted = new List<RobotTimedCommand>(timeline.commands);
         sorted.Sort((a, b) => a.startTime.CompareTo(b.startTime));
 
         if (!_cachedState)
             CacheInitialState();
 
-        RobotState state = _initialState;
+        var state = _initialState;
 
         foreach (var entry in sorted)
         {
             if (entry.command == null)
                 continue;
-            float start = entry.startTime;
-            float dur = entry.command.GetDuration();
+            var start = entry.startTime;
+            var dur = entry.command.GetDuration();
+            
             if (time >= start + dur)
             {
                 entry.command.ApplyState(ref state, dur);
@@ -77,9 +79,9 @@ public class RobotExecutor : MonoBehaviour
         ApplyState(state);
     }
 
-    IEnumerator RunSequence()
+    private IEnumerator RunSequence()
     {
-        if (sequence == null)
+        if (!sequence)
         {
             _routine = null;
             yield break;
@@ -87,19 +89,18 @@ public class RobotExecutor : MonoBehaviour
 
         do
         {
-            foreach (var command in sequence.commands)
+            foreach (var command in sequence.commands.Where(command => command != null))
             {
-                if (command != null)
-                    yield return StartCoroutine(command.Execute(gameObject, _renderer));
+                yield return StartCoroutine(command.Execute(gameObject, _renderer));
             }
         } while (sequence.loop);
 
         _routine = null;
     }
 
-    IEnumerator RunTimeline()
+    private IEnumerator RunTimeline()
     {
-        if (timeline == null || timeline.commands.Count == 0)
+        if (!timeline || timeline.commands.Count == 0)
         {
             _routine = null;
             yield break;
@@ -107,13 +108,11 @@ public class RobotExecutor : MonoBehaviour
 
         do
         {
-            float maxTime = 0f;
-            foreach (var entry in timeline.commands)
+            var maxTime = 0f;
+            foreach (var entry in timeline.commands.Where(entry => entry.command != null))
             {
-                if (entry.command == null)
-                    continue;
                 StartCoroutine(RunTimed(entry));
-                float end = entry.startTime + entry.command.GetDuration();
+                var end = entry.startTime + entry.command.GetDuration();
                 if (end > maxTime)
                     maxTime = end;
             }
@@ -127,22 +126,22 @@ public class RobotExecutor : MonoBehaviour
         _routine = null;
     }
 
-    IEnumerator RunTimed(RobotTimedCommand entry)
+    private IEnumerator RunTimed(RobotTimedCommand entry)
     {
         if (entry.startTime > 0f)
             yield return new WaitForSeconds(entry.startTime);
         yield return StartCoroutine(entry.command.Execute(gameObject, _renderer));
     }
 
-    void ApplyState(RobotState state)
+    private void ApplyState(RobotState state)
     {
         transform.position = state.Position;
         transform.eulerAngles = state.Rotation;
-        if (_renderer != null)
+        if (_renderer)
             _renderer.sharedMaterial.color = state.Color;
     }
 
-    void CacheInitialState()
+    private void CacheInitialState()
     {
         _initialState = new RobotState
         {

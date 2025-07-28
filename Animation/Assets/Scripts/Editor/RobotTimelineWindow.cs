@@ -216,12 +216,12 @@ public class RobotTimelineWindow : EditorWindow
         }
     }
 
-    void SetCommandDuration(RobotCommand command, float value)
+    void SetCommandDuration(IRobotCommand command, float value)
     {
         RobotCommandRegistry.SetDuration(command, value);
     }
 
-    Color GetColorForCommand(RobotCommand command)
+    Color GetColorForCommand(IRobotCommand command)
     {
         unchecked
         {

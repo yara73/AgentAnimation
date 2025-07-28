@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEngine;
 
 public class RobotCommandInfo
 {
@@ -13,14 +14,14 @@ public class RobotCommandInfo
 
 public static class RobotCommandRegistry
 {
-    static List<RobotCommandInfo> _infos;
+    private static List<RobotCommandInfo> _infos;
 
     static RobotCommandRegistry()
     {
         Load();
     }
 
-    static void Load()
+    private static void Load()
     {
         _infos = new List<RobotCommandInfo>();
         foreach (var type in TypeCache.GetTypesDerivedFrom<RobotCommand>())
@@ -49,7 +50,7 @@ public static class RobotCommandRegistry
         }
     }
 
-    public static void SetDuration(RobotCommand command, float value)
+    public static void SetDuration(IRobotCommand command, float value)
     {
         var info = _infos.FirstOrDefault(i => i.Type == command.GetType());
         if (info != null && info.DurationField != null)

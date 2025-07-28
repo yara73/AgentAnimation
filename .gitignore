@@ -1,2 +1,8 @@
 /Animation/Library
 /Animation/Logs
+Animation/Assembly-CSharp.csproj
+Animation/Assembly-CSharp-Editor.csproj
+/Animation/Temp
+/Animation/obj/Debug
+/Animation/.idea
+Animation/UserSettings/Layouts/default-2022.dwlt

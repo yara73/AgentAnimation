@@ -6,5 +6,5 @@ public class RobotTimedCommand
 {
     public float startTime;
     [SerializeReference]
-    public RobotCommand command;
+    public IRobotCommand command;
 }

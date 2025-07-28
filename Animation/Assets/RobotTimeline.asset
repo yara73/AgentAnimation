@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02f812a6deaea9a4e8088969e678d0cc, type: 3}
+  m_Name: RobotTimeline
+  m_EditorClassIdentifier: 
+  commands:
+  - startTime: 0
+    command:
+      rid: 8839510064805183493
+  - startTime: 1
+    command:
+      rid: 8839510064805183494
+  - startTime: 4
+    command:
+      rid: 8839510064805183495
+  - startTime: 5
+    command:
+      rid: 8839510083026026496
+  loop: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 8839510064805183493
+      type: {class: MoveCommand, ns: , asm: Assembly-CSharp}
+      data:
+        position: {x: 1, y: 1, z: 1}
+        duration: 1
+    - rid: 8839510064805183494
+      type: {class: RotateCommand, ns: , asm: Assembly-CSharp}
+      data:
+        rotation: {x: 10, y: 10, z: 10}
+        duration: 2
+    - rid: 8839510064805183495
+      type: {class: ColorCommand, ns: , asm: Assembly-CSharp}
+      data:
+        color: {r: 1, g: 0, b: 0, a: 1}
+        duration: 4
+    - rid: 8839510083026026496
+      type: {class: MoveCommand, ns: , asm: Assembly-CSharp}
+      data:
+        position: {x: -1, y: -1, z: -1}
+        duration: 2

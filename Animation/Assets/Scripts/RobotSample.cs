@@ -4,10 +4,10 @@ public class RobotSample : MonoBehaviour
 {
     public RobotCommandSequence sequence;
 
-    void Start()
+    private void Start()
     {
         var executor = GetComponent<RobotExecutor>();
-        if (executor == null)
+        if (!executor)
             executor = gameObject.AddComponent<RobotExecutor>();
         executor.sequence = sequence;
         executor.Play();
