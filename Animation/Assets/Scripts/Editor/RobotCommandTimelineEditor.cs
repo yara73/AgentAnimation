@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using System;
 
 [CustomEditor(typeof(RobotCommandTimeline))]
 public class RobotCommandTimelineEditor : Editor
@@ -24,15 +25,12 @@ public class RobotCommandTimelineEditor : Editor
         _list.onAddDropdownCallback = (rect, list) =>
         {
             var menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Move"), false, () => AddCommand<MoveCommand>());
-            menu.AddItem(new GUIContent("Rotate"), false, () => AddCommand<RotateCommand>());
-            menu.AddItem(new GUIContent("Change Color"), false, () => AddCommand<ColorCommand>());
-            menu.AddItem(new GUIContent("Wait"), false, () => AddCommand<WaitCommand>());
+            RobotCommandRegistry.PopulateMenu(menu, type => AddCommand(type));
             menu.ShowAsContext();
         };
     }
 
-    void AddCommand<T>() where T : RobotCommand, new()
+    void AddCommand(Type type)
     {
         serializedObject.Update();
         var prop = serializedObject.FindProperty("commands");
@@ -40,7 +38,7 @@ public class RobotCommandTimelineEditor : Editor
         prop.InsertArrayElementAtIndex(index);
         var element = prop.GetArrayElementAtIndex(index);
         element.FindPropertyRelative("startTime").floatValue = 0f;
-        element.FindPropertyRelative("command").managedReferenceValue = new T();
+        element.FindPropertyRelative("command").managedReferenceValue = Activator.CreateInstance(type);
         serializedObject.ApplyModifiedProperties();
     }
 
