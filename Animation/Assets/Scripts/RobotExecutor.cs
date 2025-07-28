@@ -71,18 +71,16 @@ public class RobotExecutor : MonoBehaviour
         {
             if (entry.command == null)
                 continue;
-            var start = entry.startTime;
+
+            var local = time - entry.startTime;
+            if (local <= 0f)
+                continue;
+
             var dur = entry.command.GetDuration();
-            
-            if (time >= start + dur)
-            {
-                entry.command.ApplyState(ref state, dur);
-            }
-            else if (time >= start)
-            {
-                entry.command.ApplyState(ref state, time - start);
-                break;
-            }
+            if (local > dur)
+                local = dur;
+
+            entry.command.ApplyState(ref state, local);
         }
 
         ApplyState(state);
@@ -153,6 +151,11 @@ public class RobotExecutor : MonoBehaviour
         transform.localScale = state.Scale;
         if (_renderer)
             _renderer.sharedMaterial.color = state.Color;
+    }
+
+    public void RefreshInitialState()
+    {
+        CacheInitialState();
     }
 
     private void CacheInitialState()
