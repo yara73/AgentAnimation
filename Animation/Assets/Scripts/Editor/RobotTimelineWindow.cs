@@ -35,6 +35,7 @@ public class RobotTimelineWindow : EditorWindow
     void OnDisable()
     {
         EditorApplication.update -= Update;
+        StopTimeline();
     }
 
     void Update()
