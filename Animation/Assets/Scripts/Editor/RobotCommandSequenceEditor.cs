@@ -7,7 +7,7 @@ using System.IO;
 [CustomEditor(typeof(RobotCommandSequence))]
 public class RobotCommandSequenceEditor : Editor
 {
-    ReorderableList _list;
+    private ReorderableList _list;
 
     private void OnEnable()
     {

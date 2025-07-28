@@ -5,16 +5,16 @@ using System.Linq;
 
 public class RobotTimelineWindow : EditorWindow
 {
-    const float LEFT_MARGIN = 50f;
-    RobotCommandTimeline _timeline;
-    GameObject _target;
-    Vector2 _scroll;
-    float _pixelsPerSecond = 100f;
-    int _activeIndex = -1;
-    bool _resizing = false;
-    bool _playing = false;
-    double _playStart;
-    float _previewTime = 0f;
+    private const float LEFT_MARGIN = 50f;
+    private RobotCommandTimeline _timeline;
+    private GameObject _target;
+    private Vector2 _scroll;
+    private float _pixelsPerSecond = 100f;
+    private int _activeIndex = -1;
+    private bool _resizing = false;
+    private bool _playing = false;
+    private double _playStart;
+    private float _previewTime = 0f;
 
     [MenuItem("Window/Robot Timeline Editor")]
     public static void OpenWindow()
@@ -29,18 +29,18 @@ public class RobotTimelineWindow : EditorWindow
         window.Repaint();
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         EditorApplication.update += Update;
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         EditorApplication.update -= Update;
         StopTimeline();
     }
 
-    void Update()
+    private void Update()
     {
         if (!_playing) return;
         if (!EditorApplication.isPlaying)
@@ -66,7 +66,7 @@ public class RobotTimelineWindow : EditorWindow
         Repaint();
     }
 
-    void OnGUI()
+    private void OnGUI()
     {
         _timeline = (RobotCommandTimeline)EditorGUILayout.ObjectField("Timeline", _timeline, typeof(RobotCommandTimeline), false);
         _target = (GameObject)EditorGUILayout.ObjectField("Target", _target, typeof(GameObject), true);
@@ -79,7 +79,7 @@ public class RobotTimelineWindow : EditorWindow
         var currentTime = _playing ? (float)(EditorApplication.timeSinceStartup - _playStart) : _previewTime;
         var maxTime = (from entry in _timeline.commands where entry?.command != null select entry.startTime + entry.command.GetDuration()).Prepend(0f).Max();
 
-        var rect = GUILayoutUtility.GetRect(position.width - 20, 100);
+        var rect = GUILayoutUtility.GetRect(position.width - 20, 120);
         var width = Mathf.Max(rect.width, (maxTime + 5f) * _pixelsPerSecond + LEFT_MARGIN);
         var contentRect = new Rect(0, 0, width, rect.height);
         _scroll = GUI.BeginScrollView(rect, _scroll, contentRect);
@@ -142,7 +142,7 @@ public class RobotTimelineWindow : EditorWindow
         }
     }
 
-    void DrawTimeScale(Rect rect)
+    private void DrawTimeScale(Rect rect)
     {
         Handles.color = Color.gray;
         var steps = Mathf.CeilToInt((rect.width - LEFT_MARGIN) / _pixelsPerSecond);

@@ -6,9 +6,9 @@ using System;
 [CustomEditor(typeof(RobotCommandTimeline))]
 public class RobotCommandTimelineEditor : Editor
 {
-    ReorderableList _list;
+    private ReorderableList _list;
 
-    void OnEnable()
+    private void OnEnable()
     {
         _list = new ReorderableList(serializedObject, serializedObject.FindProperty("commands"), true, true, true, true);
         _list.drawHeaderCallback = rect => GUI.Label(rect, "Timeline Commands");
@@ -30,7 +30,7 @@ public class RobotCommandTimelineEditor : Editor
         };
     }
 
-    void AddCommand(Type type)
+    private void AddCommand(Type type)
     {
         serializedObject.Update();
         var prop = serializedObject.FindProperty("commands");
