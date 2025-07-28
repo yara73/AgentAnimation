@@ -124,6 +124,12 @@ public class RobotTimelineWindow : EditorWindow
             PreviewTimeline(_previewTime);
         }
         GUILayout.Label($"Time: {currentTime:F2}s");
+
+        GUILayout.Space(5);
+        if (GUILayout.Button("Add State"))
+        {
+            ShowAddMenu();
+        }
     }
 
     void DrawTimeScale(Rect rect)
@@ -229,6 +235,30 @@ public class RobotTimelineWindow : EditorWindow
             float hue = (hash & 0xFFFFFF) / (float)0xFFFFFF;
             return Color.HSVToRGB(hue, 0.6f, 0.8f);
         }
+    }
+
+    void ShowAddMenu()
+    {
+        var menu = new GenericMenu();
+        menu.AddItem(new GUIContent("Move"), false, () => AddCommand<MoveCommand>());
+        menu.AddItem(new GUIContent("Rotate"), false, () => AddCommand<RotateCommand>());
+        menu.AddItem(new GUIContent("Change Color"), false, () => AddCommand<ColorCommand>());
+        menu.AddItem(new GUIContent("Wait"), false, () => AddCommand<WaitCommand>());
+        menu.ShowAsContext();
+    }
+
+    void AddCommand<T>() where T : RobotCommand, new()
+    {
+        if (_timeline == null)
+            return;
+        Undo.RecordObject(_timeline, "Add Command");
+        var entry = new RobotTimedCommand
+        {
+            startTime = 0f,
+            command = new T()
+        };
+        _timeline.commands.Add(entry);
+        EditorUtility.SetDirty(_timeline);
     }
 
     void PlayTimeline()
