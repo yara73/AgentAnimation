@@ -1,0 +1,249 @@
+{
+    "commands": [
+        {
+            "startTime": 0.0,
+            "command": {
+                "rid": 1000
+            }
+        },
+        {
+            "startTime": 1.0,
+            "command": {
+                "rid": 1001
+            }
+        },
+        {
+            "startTime": 4.0,
+            "command": {
+                "rid": 1002
+            }
+        },
+        {
+            "startTime": 5.0,
+            "command": {
+                "rid": 1003
+            }
+        },
+        {
+            "startTime": 3.0,
+            "command": {
+                "rid": 1004
+            }
+        },
+        {
+            "startTime": 0.0,
+            "command": {
+                "rid": 1005
+            }
+        },
+        {
+            "startTime": 8.0,
+            "command": {
+                "rid": 1006
+            }
+        },
+        {
+            "startTime": 2.0,
+            "command": {
+                "rid": 1007
+            }
+        },
+        {
+            "startTime": 0.5,
+            "command": {
+                "rid": 1008
+            }
+        },
+        {
+            "startTime": 1.5,
+            "command": {
+                "rid": 1009
+            }
+        },
+        {
+            "startTime": 7.0,
+            "command": {
+                "rid": 1010
+            }
+        },
+        {
+            "startTime": 7.5,
+            "command": {
+                "rid": 1011
+            }
+        }
+    ],
+    "loop": true,
+    "references": {
+        "version": 2,
+        "RefIds": [
+            {
+                "rid": 1000,
+                "type": {
+                    "class": "MoveCommand",
+                    "ns": "",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "position": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    },
+                    "duration": 1.0
+                }
+            },
+            {
+                "rid": 1001,
+                "type": {
+                    "class": "RotateCommand",
+                    "ns": "",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "rotation": {
+                        "x": 10.0,
+                        "y": 10.0,
+                        "z": 10.0
+                    },
+                    "duration": 2.0
+                }
+            },
+            {
+                "rid": 1002,
+                "type": {
+                    "class": "ColorCommand",
+                    "ns": "",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "color": {
+                        "r": 1.0,
+                        "g": 0.0,
+                        "b": 0.0,
+                        "a": 1.0
+                    },
+                    "duration": 4.0
+                }
+            },
+            {
+                "rid": 1003,
+                "type": {
+                    "class": "MoveCommand",
+                    "ns": "",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "position": {
+                        "x": -1.0,
+                        "y": -1.0,
+                        "z": -1.0
+                    },
+                    "duration": 2.0
+                }
+            },
+            {
+                "rid": 1004,
+                "type": {
+                    "class": "ScaleCommand",
+                    "ns": "",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    },
+                    "duration": 1.0
+                }
+            },
+            {
+                "rid": 1005,
+                "type": {
+                    "class": "ScaleCommand",
+                    "ns": "",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "scale": {
+                        "x": 0.5,
+                        "y": 0.5,
+                        "z": 0.5
+                    },
+                    "duration": 1.0
+                }
+            },
+            {
+                "rid": 1006,
+                "type": {
+                    "class": "JumpCommand",
+                    "ns": "",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "height": 1.0,
+                    "duration": 2.0
+                }
+            },
+            {
+                "rid": 1007,
+                "type": {
+                    "class": "JumpCommand",
+                    "ns": "",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "height": 1.0,
+                    "duration": 1.0
+                }
+            },
+            {
+                "rid": 1008,
+                "type": {
+                    "class": "FadeCommand",
+                    "ns": "",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "alpha": 0.5,
+                    "duration": 1.0
+                }
+            },
+            {
+                "rid": 1009,
+                "type": {
+                    "class": "FadeCommand",
+                    "ns": "",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "alpha": 1.0,
+                    "duration": 1.0
+                }
+            },
+            {
+                "rid": 1010,
+                "type": {
+                    "class": "SetActiveCommand",
+                    "ns": "",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "active": false
+                }
+            },
+            {
+                "rid": 1011,
+                "type": {
+                    "class": "SetActiveCommand",
+                    "ns": "",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "active": true
+                }
+            }
+        ]
+    }
+}

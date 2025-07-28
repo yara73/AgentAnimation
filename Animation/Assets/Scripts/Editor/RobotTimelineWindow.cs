@@ -197,15 +197,12 @@ public class RobotTimelineWindow : EditorWindow
                         var delta = e.delta.x / _pixelsPerSecond;
                         if (_resizing)
                         {
-                            var newDur = Mathf.Max(0, entry.command.GetDuration() + delta);
-                            newDur = Mathf.Round(newDur * 10f) / 10f;
+                            var newDur = MathF.Round(Mathf.Max(0, entry.command.GetDuration() + delta), 2);
                             SetCommandDuration(entry.command, newDur);
                         }
                         else
                         {
-                            var newStart = Mathf.Max(0, entry.startTime + delta);
-                            newStart = Mathf.Round(newStart * 10f) / 10f;
-                            entry.startTime = newStart;
+                            entry.startTime = MathF.Round(Mathf.Max(0, entry.startTime + delta),2);
                         }
                         e.Use();
                         EditorUtility.SetDirty(_timeline);
@@ -214,17 +211,6 @@ public class RobotTimelineWindow : EditorWindow
                 case EventType.MouseUp:
                     if (_activeIndex == i)
                     {
-                        const float snap = 0.1f;
-                        if (_resizing)
-                        {
-                            var d = entry.command.GetDuration();
-                            d = Mathf.Round(d / snap) * snap;
-                            SetCommandDuration(entry.command, d);
-                        }
-                        else
-                        {
-                            entry.startTime = Mathf.Round(entry.startTime / snap) * snap;
-                        }
                         _activeIndex = -1;
                         _resizing = false;
                         e.Use();
